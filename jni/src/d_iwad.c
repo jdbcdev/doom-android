@@ -547,16 +547,20 @@ void D_SetSaveGameFolder(void)
 
     if (!iwad_name)
         iwad_name = "unknown.wad";
-
+#if defined(ANDROID)
+    savegamefolder = M_StringJoin(SDL_AndroidGetInternalStoragePath(), DIR_SEPARATOR_S, "savegames",
+        DIR_SEPARATOR_S, NULL);
+#else
     savegamefolder = M_StringJoin(M_GetExecutableFolder(), DIR_SEPARATOR_S, "savegames",
         DIR_SEPARATOR_S, NULL);
+#endif
     M_MakeDirectory(savegamefolder);
 
     savegamefolder = M_StringJoin(savegamefolder, (pwadfile[0] ? pwadfile : iwad_name),
         DIR_SEPARATOR_S, NULL);
     M_MakeDirectory(savegamefolder);
 
-    C_Output("Savegames will be saved and loaded in %s.", uppercase(savegamefolder));
+    SDL_Log("Savegames will be saved and loaded in %s.", uppercase(savegamefolder));
 }
 
 //

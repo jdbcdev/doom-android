@@ -213,7 +213,9 @@ void M_ClearMenus(void);
 enum
 {
     new_game = 0,
+#if !defined(ANDROID)
     options,
+#endif
     load_game,
     save_game,
     quit_doom,
@@ -223,7 +225,9 @@ enum
 menuitem_t MainMenu[] =
 {
     { 1, "M_NGAME",  M_NewGame,  &s_M_NEWGAME  },
+#if !defined(ANDROID)
     { 1, "M_OPTION", M_Options,  &s_M_OPTIONS  },
+#endif
     { 1, "M_LOADG",  M_LoadGame, &s_M_LOADGAME },
     { 1, "M_SAVEG",  M_SaveGame, &s_M_SAVEGAME },
     { 1, "M_QUITG",  M_QuitDOOM, &s_M_QUITGAME }
@@ -1576,6 +1580,7 @@ void M_VerifyNightmare(int key)
 
 void M_ChooseSkill(int choice)
 {
+#if !defined(ANDROID)
     if (choice == nightmare && gameskill != sk_nightmare && !nomonsters)
     {
         if (M_StringEndsWith(s_NIGHTMARE, s_PRESSYN))
@@ -1588,7 +1593,7 @@ void M_ChooseSkill(int choice)
         }
         return;
     }
-
+#endif
     HU_DrawDisk();
     S_StartSound(NULL, sfx_pistol);
     I_WaitVBL(2 * TICRATE);
@@ -2824,9 +2829,20 @@ dboolean M_Responder(event_t *ev)
                         itemOn = 0;
                     else
                         ++itemOn;
-                    if (currentMenu == &MainDef && itemOn == 2 && !savegames)
+                    if (currentMenu == &MainDef
+#if defined(ANDROID)
+                      && itemOn == 1
+#else
+                      && itemOn == 2
+#endif
+                      && !savegames)
                         ++itemOn;
-                    if (currentMenu == &MainDef && itemOn == 3
+                    if (currentMenu == &MainDef
+#if defined(ANDROID)
+                      && itemOn == 2
+#else
+                      && itemOn == 3
+#endif
                         && (!usergame || gamestate != GS_LEVEL || !players[0].health))
                         ++itemOn;
                     if (currentMenu == &OptionsDef && !itemOn && !usergame)
@@ -2887,10 +2903,21 @@ dboolean M_Responder(event_t *ev)
                         itemOn = currentMenu->numitems - 1;
                     else
                         --itemOn;
-                    if (currentMenu == &MainDef && itemOn == 3
+                    if (currentMenu == &MainDef
+#if defined(ANDROID)
+                      && itemOn == 2
+#else
+                      && itemOn == 3
+#endif
                         && (!usergame || gamestate != GS_LEVEL || !players[0].health))
                         --itemOn;
-                    if (currentMenu == &MainDef && itemOn == 2 && !savegames)
+                    if (currentMenu == &MainDef
+#if defined(ANDROID)
+                      && itemOn == 1
+#else
+                      && itemOn == 2
+#endif
+                      && !savegames)
                         --itemOn;
                     if (currentMenu == &OptionsDef && !itemOn && !usergame)
                         itemOn = currentMenu->numitems - 1;
@@ -2980,11 +3007,20 @@ dboolean M_Responder(event_t *ev)
                 else
                 {
                     if ((!usergame || gamestate != GS_LEVEL) && currentMenu == &MainDef
+#if defined(ANDROID)
+                        && itemOn == 2)
+#else
                         && itemOn == 3)
+#endif
                         return true;
                     if (!usergame && currentMenu == &OptionsDef && !itemOn)
                         return true;
-                    if (currentMenu != &LoadDef && (currentMenu != &NewDef || itemOn == 4))
+                    if (currentMenu != &LoadDef && (currentMenu != &NewDef
+#if defined(ANDROID)
+                      || itemOn == 3))
+#else
+                      || itemOn == 4))
+#endif
                         S_StartSound(NULL, sfx_pistol);
                     currentMenu->menuitems[itemOn].routine(itemOn);
                 }

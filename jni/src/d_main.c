@@ -1274,10 +1274,10 @@ static void D_DoomMainSetup(void)
     const char *wadfolder = "/home/jdbc/Proyectos/opensource/doomretro-1.9/wad";
 #endif
 
-
     char *packagewad = M_StringJoin(wadfolder, DIR_SEPARATOR_S, PACKAGE_WAD, NULL);
     SDL_Log("D_DoomMainSetup packagewad %s", packagewad);
 #if defined(ANDROID)
+    //iwadfile = D_FindIWAD();
     iwadfile = M_StringJoin(SDL_AndroidGetExternalStoragePath(), DIR_SEPARATOR_S, "doom.wad", NULL);
 #else
     iwadfile = M_StringJoin(wadfolder, DIR_SEPARATOR_S, "doom.wad", NULL);
@@ -1286,7 +1286,6 @@ static void D_DoomMainSetup(void)
     C_PrintSDLVersions();
 
     iwadfolder = Z_Malloc(MAX_PATH, PU_STATIC, NULL);
-
     modifiedgame = false;
 
     /*

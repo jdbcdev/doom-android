@@ -75,7 +75,7 @@ dboolean                vid_fullscreen = vid_fullscreen_default;
 char                    *vid_scaledriver = vid_scaledriver_default;
 char                    *vid_scalefilter = vid_scalefilter_default;
 char                    *vid_screenresolution = vid_screenresolution_default;
-dboolean                vid_showfps = true;
+dboolean                vid_showfps = false;
 char                    *vid_windowsize = vid_windowsize_default;
 dboolean                vid_vsync = vid_vsync_default;
 dboolean                vid_widescreen = vid_widescreen_default;
@@ -726,6 +726,11 @@ void I_Blit(void)
     SDL_UpdateTexture(texture, &src_rect, buffer->pixels, pitch);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, &src_rect, NULL);
+#if defined(ANDROID)
+    if (!menuactive && gamestate == GS_LEVEL) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -742,6 +747,11 @@ void I_Blit_NearestLinear(void)
     SDL_RenderCopy(renderer, texture, &src_rect, NULL);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+#if defined(ANDROID)
+    if (!menuactive && gamestate == GS_LEVEL) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -802,6 +812,11 @@ void I_Blit_NearestLinear_ShowFPS(void)
     SDL_RenderCopy(renderer, texture, &src_rect, NULL);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+#if defined(ANDROID)
+    if (!menuactive) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -816,6 +831,11 @@ void I_Blit_Shake(void)
     SDL_RenderClear(renderer);
     SDL_RenderCopyEx(renderer, texture, &src_rect, NULL, M_RandomInt(-1000, 1000) / 1000.0, NULL,
         SDL_FLIP_NONE);
+#if defined(ANDROID)
+    if (!menuactive) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -833,6 +853,11 @@ void I_Blit_NearestLinear_Shake(void)
         SDL_FLIP_NONE);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+#if defined(ANDROID)
+    if (!menuactive) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -860,6 +885,11 @@ void I_Blit_ShowFPS_Shake(void)
     SDL_RenderClear(renderer);
     SDL_RenderCopyEx(renderer, texture, &src_rect, NULL, M_RandomInt(-1000, 1000) / 1000.0, NULL,
         SDL_FLIP_NONE);
+#if defined(ANDROID)
+    if (!menuactive) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -890,6 +920,11 @@ void I_Blit_NearestLinear_ShowFPS_Shake(void)
         SDL_FLIP_NONE);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+#if defined(ANDROID)
+    if (!menuactive) {
+        I_RenderVirtualpad();
+    }
+#endif
     SDL_RenderPresent(renderer);
 }
 
@@ -898,9 +933,6 @@ void I_UpdateBlitFunc(void)
     blitfunc = (vid_showfps ? (nearestlinear ? I_Blit_NearestLinear_ShowFPS : I_Blit_ShowFPS) :
         (nearestlinear ? I_Blit_NearestLinear : I_Blit));
 
-    /*
-    blitfunc = (vid_showfps ? (nearestlinear ? I_Blit_NearestLinear_ShowFPS_Shake : I_Blit_ShowFPS_Shake) :
-            (nearestlinear ? I_Blit_NearestLinear : I_Blit)); */
 }
 
 void I_Blit_Automap(void)

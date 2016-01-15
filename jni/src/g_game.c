@@ -283,62 +283,59 @@ void G_RemoveChoppers(void)
     oldweaponsowned[wp_chainsaw] = player->chainsawbeforechoppers;
 }
 
-static void G_NextWeapon(void)
-{
+static void G_NextWeapon(void) {
     player_t            *player = &players[0];
     weapontype_t        pendingweapon = player->pendingweapon;
     weapontype_t        readyweapon = player->readyweapon;
     weapontype_t        i = (pendingweapon == wp_nochange ? readyweapon : pendingweapon);
 
-    do
-    {
+    do {
         i = weapons[i].next;
         if (i == wp_fist && player->weaponowned[wp_chainsaw] && !player->powers[pw_strength])
             i = wp_chainsaw;
     }
     while (!player->weaponowned[i] || player->ammo[weapons[i].ammotype] < weapons[i].minammo);
 
-    if (i != readyweapon)
+    if (i != readyweapon) {
         player->pendingweapon = i;
-
-    if ((player->cheats & CF_CHOPPERS) && i != wp_chainsaw)
+    }
+    if ((player->cheats & CF_CHOPPERS) && i != wp_chainsaw) {
         G_RemoveChoppers();
-
-    if (i == wp_fist && player->powers[pw_strength])
+    }
+    if (i == wp_fist && player->powers[pw_strength]) {
         S_StartSound(NULL, sfx_getpow);
+    }
 }
 
-static void G_PrevWeapon(void)
-{
+static void G_PrevWeapon(void) {
     player_t            *player = &players[0];
     weapontype_t        pendingweapon = player->pendingweapon;
     weapontype_t        readyweapon = player->readyweapon;
     weapontype_t        i = (pendingweapon == wp_nochange ? readyweapon : pendingweapon);
 
-    do
-    {
+    do {
         i = weapons[i].prev;
         if (i == wp_fist && player->weaponowned[wp_chainsaw] && !player->powers[pw_strength])
             i = wp_bfg;
     }
     while (!player->weaponowned[i] || player->ammo[weapons[i].ammotype] < weapons[i].minammo);
 
-    if (i != readyweapon)
+    if (i != readyweapon) {
         player->pendingweapon = i;
-
-    if ((player->cheats & CF_CHOPPERS) && i != wp_chainsaw)
+    }
+    if ((player->cheats & CF_CHOPPERS) && i != wp_chainsaw) {
         G_RemoveChoppers();
-
-    if (i == wp_fist && player->powers[pw_strength])
+    }
+    if (i == wp_fist && player->powers[pw_strength]) {
         S_StartSound(NULL, sfx_getpow);
+    }
 }
 
 //
 // G_BuildTiccmd
 // Builds a ticcmd from all of the available inputs.
 //
-void G_BuildTiccmd(ticcmd_t *cmd)
-{
+void G_BuildTiccmd(ticcmd_t *cmd) {
     dboolean    strafe;
     int         run;
     int         forward = 0;
@@ -361,16 +358,13 @@ void G_BuildTiccmd(ticcmd_t *cmd)
         turnheld = 0;
 
     // let movement keys cancel each other out
-    if (strafe)
-    {
+    if (strafe) {
         if (gamekeydown[key_right])
             side += sidemove[run];
 
         if (gamekeydown[key_left])
             side -= sidemove[run];
-    }
-    else
-    {
+    } else {
         if (gamekeydown[key_right])
             cmd->angleturn -= angleturn[turnheld < SLOWTURNTICS ? 2 : run]; //0.5
         else if (gamepadthumbRX > 0)
@@ -405,10 +399,9 @@ void G_BuildTiccmd(ticcmd_t *cmd)
         side -= (int)(sidemove[run] * gamepadthumbLXleft);
 
     // buttons
-    if (skipaction)
+    if (skipaction) {
         skipaction = false;
-    else
-    {
+    } else {
         if (mousebuttons[mousebfire] || gamekeydown[key_fire] || (gamepadbuttons & gamepadfire)) {
             cmd->buttons |= BT_ATTACK;
             //cmd->buttons |= BT_USE;
@@ -420,23 +413,18 @@ void G_BuildTiccmd(ticcmd_t *cmd)
         }
     }
 
-    if (!idclev && !idmus)
-    {
+    if (!idclev && !idmus) {
         int     i;
 
-        for (i = 0; i < NUMWEAPONKEYS; ++i)
-        {
+        for (i = 0; i < NUMWEAPONKEYS; ++i) {
             int key = *weapon_keys[i];
 
-            if (gamekeydown[key] && !keydown)
-            {
+            if (gamekeydown[key] && !keydown) {
                 keydown = key;
                 cmd->buttons |= BT_CHANGE;
                 cmd->buttons |= i << BT_WEAPONSHIFT;
                 break;
-            }
-            else if (gamepadbuttons & *gamepadweapons[i])
-            {
+            } else if (gamepadbuttons & *gamepadweapons[i]) {
                 if (players[0].readyweapon != i
                     || (i == wp_fist && players[0].weaponowned[wp_chainsaw])
                     || (i == wp_shotgun && players[0].weaponowned[wp_supershotgun]))
@@ -505,8 +493,10 @@ void G_BuildTiccmd(ticcmd_t *cmd)
     else
         cmd->angleturn -= mousex * 0x8;
 
+#if !defined(ANDROID)
     mousex = 0;
     mousey = 0;
+#endif
 
     cmd->forwardmove += BETWEEN(-MAXPLMOVE, forward, MAXPLMOVE);
     cmd->sidemove += BETWEEN(-MAXPLMOVE, side, MAXPLMOVE);
@@ -712,23 +702,23 @@ dboolean G_Responder(event_t *ev)
         return false;
     }
 
-    if (gamestate == GS_LEVEL)
-    {
-        if (ST_Responder(ev))
+    if (gamestate == GS_LEVEL) {
+        if (ST_Responder(ev)) {
             return true;        // status window ate it
-        if (!mapwindow)
+        }
+        if (!mapwindow) {
             if (AM_Responder(ev))
                 return true;    // automap ate it
+        }
     }
 
-    if (gamestate == GS_FINALE)
-    {
-        if (F_Responder(ev))
+    if (gamestate == GS_FINALE) {
+        if (F_Responder(ev)) {
             return true;        // finale ate the event
+        }
     }
 
-    switch (ev->type)
-    {
+    switch (ev->type) {
         case ev_keydown:
             key = ev->data1;
             if (key == key_prevweapon && !menuactive && !paused)
@@ -766,49 +756,58 @@ dboolean G_Responder(event_t *ev)
 #if defined(ANDROID)
         case ev_touch:
             if (touched_screen) {
+                if (gamestate == GS_INTERMISSION) {
+                    gamekeydown[key_fire] = true;
+                }
                 if (touch_x[1] < 0.5) {
                     //Forward or back movement
                     if (fabs(touch_dy[1]) >= fabs(touch_dx[1])) {
                         if (touch_dy[1] < -0.001) {
+                            SDL_Log("FORWARD dy %f", touch_dy[1]);
+                            if (touch_dy[1] < -0.01) {
+                                gamekeydown[key_run] = true;
+                            }
                             gamekeydown[key_up] = true;
                             gamekeydown[key_down] = false;
                         } else if (touch_dy[1] > 0.001) {
                             gamekeydown[key_up] = false;
                             gamekeydown[key_down] = true;
-                          }
-                    } //else {
-                          //Left or right movement
-                          if (touch_y[1] > 0.5) {
-                              if (touch_dx[1] > 0.002) {
-                                  gamekeydown[key_right] = true;
-                                  gamekeydown[key_left] = false;
-                              } else if (touch_dx[1] < -0.002) {
-                                  gamekeydown[key_right] = false;
-                                  gamekeydown[key_left] = true;
-                              }
-                          }
-                    //}
-                }
-                //Strafe movement
-                if (touch_x[0] > 0.5) {
-                    if (touch_dx[0] > 0) {
-                        gamekeydown[key_straferight] = true;
-                        gamekeydown[key_strafeleft] = false;
-                    } else if (touch_dx[0] < 0) {
-                        gamekeydown[key_straferight] = false;
-                        gamekeydown[key_strafeleft] = true;
+                        }
                     }
-
+                    else {
+                        //Strafe movement
+                        if (touch_dx[1] > 0.002) {
+                            gamekeydown[key_straferight] = true;
+                            gamekeydown[key_strafeleft] = false;
+                        } else if (touch_dx[1] < -0.002) {
+                            gamekeydown[key_straferight] = false;
+                            gamekeydown[key_strafeleft] = true;
+                        }
+                    }
                 }
+
+                if (touch_x[0] > 0.5) {
+                    //Left or right movement
+                    if (mousex == 0) {
+                        mousex = touch_dx[0] * SCREENWIDTH * 20; //m_sensitivity / 10;
+                    }
+                }
+
                 // Fire and use button
                 if (I_ButtonUseTouched(touch_x[0] * displaywidth, touch_y[0] * displayheight)) {
-                      gamekeydown[key_use] = true;
+                    gamekeydown[key_use] = true;
                 }
                 if (I_ButtonFireTouched(touch_x[0] * displaywidth, touch_y[0] * displayheight)) {
-                      gamekeydown[key_fire] = true;
+                    gamekeydown[key_fire] = true;
+                }
+                int index_weapon = I_WeaponSelected(touch_x[1] * displaywidth, touch_y[1] * displayheight);
+                if (index_weapon!=-1) {
+                    int key = *weapon_keys[index_weapon];
+                    gamekeydown[key] = true;
                 }
             } else {
                   // Stop moving
+                  mousex = 0;
                   gamekeydown[key_right] = false;
                   gamekeydown[key_left] = false;
                   gamekeydown[key_fire] = false;
@@ -817,7 +816,12 @@ dboolean G_Responder(event_t *ev)
                   gamekeydown[key_down] = false;
                   gamekeydown[key_straferight] = false;
                   gamekeydown[key_strafeleft] = false;
+                  gamekeydown[key_run] = false;
                   int i;
+                  for (i = 0; i < NUMWEAPONKEYS; ++i) {
+                      int key = *weapon_keys[i];
+                      gamekeydown[key] = false;
+                  }
                   for (i=0; i < 2; ++i) {
                       touch_x[i] = 0;
                       touch_y[i] = 0;
